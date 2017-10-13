@@ -35,7 +35,14 @@ public enum JavaVersion {
 	/**
 	 * Java 8 language enhancements: lambda expressions, better type inference, more flexible annotations.
 	 */
-	JAVA8("Java 8", "1.8", "JavaSE-1.8");
+	JAVA8("Java 8", "1.8", "JavaSE-1.8")
+	,
+
+	/**
+	 * Java 9 language enhancements: mainly modules.
+	 */
+	JAVA9("Java 9", "9", "JavaSE-9")
+	;
 
 	private final String label;
 	private final String qualifier;
