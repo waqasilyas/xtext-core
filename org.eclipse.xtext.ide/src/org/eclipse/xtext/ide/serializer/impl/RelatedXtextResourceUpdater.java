@@ -26,7 +26,9 @@ import org.eclipse.xtext.ide.serializer.impl.ChangeTreeProvider.ResourceRecordin
 import org.eclipse.xtext.ide.serializer.impl.ChangeTreeProvider.ResourceSetRecording;
 import org.eclipse.xtext.ide.serializer.impl.EObjectDescriptionDeltaProvider.Deltas;
 import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.resource.impl.ChunkedResourceDescriptions;
 import org.eclipse.xtext.util.IAcceptor;
+import org.eclipse.xtext.util.IResourceScopeCache;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -53,6 +55,9 @@ public class RelatedXtextResourceUpdater extends RelatedResourceUpdater {
 
 	@Inject
 	private ResourceLifecycleManager lifecycleManager;
+	
+	@Inject 
+	private IResourceScopeCache resourceScopeCache;
 
 	@Override
 	public void applyChange(Deltas deltas, IAcceptor<IEmfResourceChange> changeAcceptor) {
@@ -75,8 +80,13 @@ public class RelatedXtextResourceUpdater extends RelatedResourceUpdater {
 			ResourceRecording recordedResource = tree.getRecordedResource(res);
 			serializer.serializeChanges(recordedResource, rewriter);
 		}
+		ChunkedResourceDescriptions chunkedResourceDescriptions = ChunkedResourceDescriptions.removeFromEmfObject(res.getResourceSet());
+		resourceScopeCache.clear(res);
 		for (IUpdatableReference upd : context.getUpdatableReferences()) {
 			referenceUpdater.updateReference(rewriter, upd);
+		}
+		if (chunkedResourceDescriptions != null) {
+			chunkedResourceDescriptions.attachToEmfObject(res.getResourceSet());
 		}
 		ITextRegionAccessDiff rewritten = rewriter.create();
 		List<ITextReplacement> rep = formatter.format(rewritten);
